@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TradingView Clone</title>
+    <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <strong id="header-title">BTCUSDT - 15m</strong>
+      <select id="symbol">
+        <option value="BTCUSDT">BTCUSDT</option>
+        <option value="ETHUSDT">ETHUSDT</option>
+        <option value="ADAUSDT">ADAUSDT</option>
+        <option value="BNBUSDT">BNBUSDT</option>
+      </select>
+      <select id="interval">
+        <option value="1m">1m</option>
+        <option value="5m">5m</option>
+        <option value="15m" selected>15m</option>
+        <option value="1h">1h</option>
+        <option value="4h">4h</option>
+      </select>
+      <select id="chartType">
+        <option value="candlestick" selected>Candlestick</option>
+        <option value="line">Line</option>
+      </select>
+      <button onclick="loadChart()">Tải lại</button>
+      <div style="margin-left: auto">Giá: <strong id="price">-</strong></div>
+    </header>
+
+    <div class="container">
+      <div class="chart-area">
+        <div id="loading" class="loading-overlay">Loading...</div>
+        <div id="chart"></div>
+      </div>
+      <div class="sidebar">
+        <h4>Danh sách coin</h4>
+        <ul class="coin-list" id="coinList"></ul>
+      </div>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
