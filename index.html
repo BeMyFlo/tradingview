@@ -4,40 +4,69 @@
     <meta charset="UTF-8" />
     <title>TradingView Clone</title>
     <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/header.css" />
+    <link rel="stylesheet" href="./css/chart.css" />
+    <link rel="stylesheet" href="./css/sidebar.css" />
   </head>
   <body>
     <header>
-      <strong id="header-title">BTCUSDT - 15m</strong>
-      <select id="symbol">
-        <option value="BTCUSDT">BTCUSDT</option>
-        <option value="ETHUSDT">ETHUSDT</option>
-        <option value="ADAUSDT">ADAUSDT</option>
-        <option value="BNBUSDT">BNBUSDT</option>
-      </select>
-      <select id="interval">
-        <option value="1m">1m</option>
-        <option value="5m">5m</option>
-        <option value="15m" selected>15m</option>
-        <option value="1h">1h</option>
-        <option value="4h">4h</option>
-      </select>
-      <select id="chartType">
-        <option value="candlestick" selected>Candlestick</option>
-        <option value="line">Line</option>
-      </select>
-      <button onclick="loadChart()">Tải lại</button>
-      <div style="margin-left: auto">Giá: <strong id="price">-</strong></div>
+      <div class="main-tool">
+        <strong id="header-title">BTCUSDT - 15m</strong>
+        <select id="symbol">
+          <option value="BTCUSDT">BTCUSDT</option>
+          <option value="ETHUSDT">ETHUSDT</option>
+          <option value="ADAUSDT">ADAUSDT</option>
+          <option value="BNBUSDT">BNBUSDT</option>
+        </select>
+        <select id="interval">
+          <option value="1m">1m</option>
+          <option value="5m">5m</option>
+          <option value="15m" selected>15m</option>
+          <option value="1h">1h</option>
+          <option value="4h">4h</option>
+        </select>
+        <select id="chartType">
+          <option value="candlestick" selected>Candlestick</option>
+          <option value="line">Line</option>
+        </select>
+        <button onclick="loadChart()">Tải lại</button>
+        <button id="theme-toggle">🌙</button>
+      </div>
+      <div class="auth-buttons">
+        <button id="register-btn">Đăng ký</button>
+        <button id="login-btn">Đăng nhập</button>
+      </div>
     </header>
 
     <div class="container">
       <div class="chart-area">
         <div id="loading" class="loading-overlay">Loading...</div>
+        <div class="chart-toolbar">
+          <button title="Crosshair"><i class="icon">＋</i></button>
+          <button title="Trend Line"><i class="icon">／</i></button>
+          <button title="Horizontal Line"><i class="icon">─</i></button>
+          <button title="Brush"><i class="icon">🖊️</i></button>
+          <button title="Text"><i class="icon">🅰️</i></button>
+          <button title="Emoji"><i class="icon">😊</i></button>
+          <button title="Arrow"><i class="icon">➡️</i></button>
+          <button title="Rectangle"><i class="icon">⬛</i></button>
+          <button title="Lock"><i class="icon">🔒</i></button>
+          <button title="Eye"><i class="icon">👁️</i></button>
+          <button title="Delete"><i class="icon">🗑️</i></button>
+        </div>
         <div id="chart"></div>
       </div>
       <div class="sidebar">
         <h4>Danh sách coin</h4>
         <ul class="coin-list" id="coinList"></ul>
+        <div class="chart-info">
+          <h5>Thông tin biểu đồ</h5>
+          <div class="info-item"><span class="label">Mã:</span><span id="info-symbol">BTCUSDT</span></div>
+          <div class="info-item"><span class="label">Giá:</span><span id="info-price">60,123.45</span></div>
+          <div class="info-item"><span class="label">Thay đổi:</span><span id="info-change" class="up">+1.23%</span></div>
+          <div class="info-item"><span class="label">Khối lượng:</span><span id="info-volume">1,234.56 BTC</span></div>
+        </div>
       </div>
     </div>
 

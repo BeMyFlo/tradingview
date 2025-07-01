@@ -42,7 +42,6 @@ async function loadChart() {
 
     document.getElementById("price").innerText = candles.at(-1)?.close?.toFixed(2);
   } catch (err) {
-    alert('Lỗi khi tải dữ liệu');
     console.error(err);
   } finally {
     loading.style.display = 'none';
