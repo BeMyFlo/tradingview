@@ -42,6 +42,7 @@
             <option value="area">Area</option>
             <option value="heikin_ashi">Heikin Ashi</option>
           </select>
+          <button onclick="openIndicatorPopup()">Các chỉ báo kĩ thuật</button>
           <button onclick="loadChart()">Tải lại</button>
         </div>
       </div>
@@ -94,22 +95,7 @@
       </div>
     </div>
     <div id="auth-popup-container"></div>
-
-    <script>
-      fetch("./user/auth-popup.html")
-        .then((res) => res.text())
-        .then((html) => {
-          document.getElementById("auth-popup-container").innerHTML = html;
-
-          const script = document.createElement("script");
-          script.src = "./user/user.js";
-          script.onload = () => {
-            // Gọi hàm khởi tạo sau khi JS đã load xong
-            initAuthPopupEvents();
-          };
-          document.body.appendChild(script);
-        });
-    </script>
+    <div id="indicator-popup-container"></div>
     <script src="./script.js"></script>
   </body>
 </html>

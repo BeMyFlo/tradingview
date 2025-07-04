@@ -1,4 +1,5 @@
-const apiBaseUrl = "https://beviewchart-production.up.railway.app/api/user";
+const apiBaseUrl = "http://localhost:8090/api/user/api/user";
+// const apiBaseUrl = "https://beviewchart-production.up.railway.app/api/user";
 
 // ✅ Đảm bảo gọi sau khi popup HTML đã được inject xong
 function initAuthPopupEvents() {

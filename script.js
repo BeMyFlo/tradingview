@@ -1,6 +1,6 @@
 let chart, series;
-// const url = "http://localhost:8090/api/user";
-const url = "https://beviewchart-production.up.railway.app/api/user";
+const url = "http://localhost:8090/api/user";
+// const url = "https://beviewchart-production.up.railway.app/api/user";
 
 // =================== KẾT NỐI WEBSOCKET ===================
 const socket = new WebSocket("ws://localhost:8090");
@@ -232,6 +232,35 @@ function convertToHeikinAshi(candles) {
 
   return haCandles;
 }
+
+fetch("./user/auth-popup.html")
+  .then((res) => res.text())
+  .then((html) => {
+    document.getElementById("auth-popup-container").innerHTML = html;
+
+    const script = document.createElement("script");
+    script.src = "./user/user.js";
+    script.onload = () => {
+      // Gọi hàm khởi tạo sau khi JS đã load xong
+      initAuthPopupEvents();
+    };
+    document.body.appendChild(script);
+  });
+
+fetch("./indicators/indicator-popup.html")
+  .then((res) => res.text())
+  .then((html) => {
+    document.getElementById("indicator-popup-container").innerHTML = html;
+
+    const style = document.createElement("link");
+    style.rel = "stylesheet";
+    style.href = "./indicators/indicator-popup.css";
+    document.head.appendChild(style);
+
+    const script = document.createElement("script");
+    script.src = "./indicators/indicator-popup.js";
+    document.body.appendChild(script);
+  });
 
 // =================== BẮT SỰ KIỆN CLICK VÀ ĐẶT THẾ GIÁ ===================
 // function subscribeChartClickEvents() {

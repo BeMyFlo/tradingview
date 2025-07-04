@@ -88,7 +88,7 @@ header button:hover {
   color: #fff;
 }
 #register-btn:hover {
-  background: #059669;
+  background: #484a49;
   transform: scale(1.02);
 }
 body.dark-mode #register-btn {
@@ -103,8 +103,8 @@ body.dark-mode #register-btn:hover {
   color: #000000;
 }
 #login-btn:hover {
-  background: #3b82f6;
-  color: #fff;
+  background: #efeeee;
+  color: #000000;
   transform: scale(1.02);
 }
 body.dark-mode #login-btn {
