@@ -1,0 +1,18 @@
+<div id="auth-popup-overlay" class="popup-overlay" style="display: none">
+  <div class="popup-content">
+    <button class="popup-close" onclick="hideAuthPopup()">✕</button>
+    <h2 id="popup-title">Đăng nhập</h2>
+    <form id="auth-form">
+      <input type="text" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Mật khẩu" required />
+      <button type="submit">Tiếp tục</button>
+    </form>
+    <p id="toggle-form-text">
+      Chưa có tài khoản?
+      <a href="#" onclick="toggleAuthMode()">Đăng ký</a>
+    </p>
+  </div>
+</div>
+
+<link rel="stylesheet" href="user/user.css" />
+<script src="./user.js"></script>

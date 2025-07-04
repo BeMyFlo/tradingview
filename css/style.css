@@ -4,8 +4,8 @@
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #fff;
+  font-family: "Segoe UI", sans-serif;
+  background: #f0f0f0;
 }
 
 .container {
@@ -24,7 +24,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 16px;
   color: #1a1a1a;
@@ -37,7 +37,7 @@ body.dark-mode .loading-overlay {
   color: #d1d5db;
 }
 .loading-overlay::before {
-  content: '';
+  content: "";
   width: 32px;
   height: 32px;
   border: 3px solid #3b82f6;
