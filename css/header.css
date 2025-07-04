@@ -105,3 +105,27 @@ body.dark-mode #login-btn:hover {
   gap: 12px;
   align-items: center;
 }
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .main-tool {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #register-btn,
+  #login-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  header select,
+  header button {
+    width: 100%;
+  }
+}

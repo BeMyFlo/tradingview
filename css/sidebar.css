@@ -136,3 +136,21 @@ body.dark-mode .chart-info #info-change.down {
 body.dark-mode .chart-info #info-volume {
     color: #e0e0e0;
 }
+
+@media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      border-left: none;
+      border-top: 1px solid #e0e0e0;
+      padding: 12px;
+    }
+  
+    body.dark-mode .sidebar {
+      border-top: 1px solid #3a3a3a;
+    }
+  
+    .chart-info {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+  }
