@@ -1,6 +1,7 @@
 let chart, series;
-const url = "http://localhost:8090/api/user";
-// const url = "https://beviewchart-production.up.railway.app/api/user";
+let lastCandleTime = 0;
+// const url = "http://localhost:8090/api/user";
+const url = "https://beviewchart-production.up.railway.app/api/user";
 
 // =================== KẾT NỐI WEBSOCKET ===================
 const socket = new WebSocket("ws://localhost:8090");
@@ -15,10 +16,35 @@ socket.onopen = () => {
 
   socket.send(JSON.stringify({ type: "auth", userId }));
 };
+
 socket.onmessage = (event) => {
   const msg = JSON.parse(event.data);
+
   if (msg.type === "priceUpdate") {
     updateRightSidebarPrices(msg.data);
+  }
+
+  if (msg.type === "candleUpdate") {
+    const candle = msg.data;
+
+    if (
+      series &&
+      candle?.symbol === currentSymbol &&
+      candle?.interval === currentInterval
+    ) {
+      const time = candle.time;
+      if (time >= lastCandleTime) {
+        series.update({
+          time,
+          open: +candle.open,
+          high: +candle.high,
+          low: +candle.low,
+          close: +candle.close,
+        });
+
+        lastCandleTime = time; // Cập nhật lại mốc thời gian mới nhất
+      }
+    }
   }
 };
 
@@ -55,13 +81,23 @@ async function loadChart() {
   const interval = document.getElementById("interval").value;
   const chartType = document.getElementById("chartType").value;
 
+  currentSymbol = symbol;
+  currentInterval = interval;
+
   try {
     const candles = await fetchCandles(symbol, interval);
 
     updateChartInfoSidebar(candles, symbol);
-
     initChart(chartType, candles);
-    // subscribeChartClickEvents();
+
+    // ✅ Gửi yêu cầu subscribe realtime cho symbol+interval này
+    socket.send(
+      JSON.stringify({
+        type: "subscribeCandle",
+        symbol,
+        interval,
+      })
+    );
   } catch (err) {
     console.error("Lỗi khi tải biểu đồ:", err);
   } finally {
@@ -77,6 +113,12 @@ async function fetchCandles(symbol, interval) {
     body: JSON.stringify({ symbol, interval }),
   });
   const data = await res.json();
+
+  if (!Array.isArray(data) || data.length === 0) {
+    console.warn("⚠️ Không có dữ liệu nến cho symbol:", symbol);
+    return [];
+  }
+
   return data.map((c) => ({
     time: c[0] / 1000,
     open: +c[1],
@@ -115,26 +157,32 @@ function initChart(chartType, candles) {
     layout: { background: { color: "#fff" }, textColor: "#000" },
     timeScale: { timeVisible: true },
     rightPriceScale: { visible: true },
+    crosshair: {
+      mode: LightweightCharts.CrosshairMode.Normal,
+    },
   });
 
-  console.log("Khởi tạo chart với loại:", chartType);
-  // Chọn loại chart
   if (chartType === "candlestick") {
     series = chart.addCandlestickSeries();
     series.setData(candles);
+    lastCandleTime = candles[candles.length - 1]?.time || 0;
   } else if (chartType === "bar") {
     series = chart.addBarSeries();
     series.setData(candles);
+    lastCandleTime = candles[candles.length - 1]?.time || 0;
   } else if (chartType === "line") {
     series = chart.addLineSeries();
     series.setData(candles.map((c) => ({ time: c.time, value: c.close })));
+    lastCandleTime = candles[candles.length - 1]?.time || 0;
   } else if (chartType === "area") {
     series = chart.addAreaSeries();
     series.setData(candles.map((c) => ({ time: c.time, value: c.close })));
+    lastCandleTime = candles[candles.length - 1]?.time || 0;
   } else if (chartType === "heikin_ashi") {
     seriesData = convertToHeikinAshi(candles);
     series = chart.addCandlestickSeries();
     series.setData(seriesData);
+    lastCandleTime = seriesData[seriesData.length - 1]?.time || 0;
   }
 }
 
