@@ -4,7 +4,8 @@ let lastCandleTime = 0;
 const url = "https://beviewchart-production.up.railway.app/api/user";
 
 // =================== KẾT NỐI WEBSOCKET ===================
-const socket = new WebSocket("ws://localhost:8090");
+// const socket = new WebSocket("ws://localhost:8090");
+const socket = new WebSocket("wss://beviewchart-production.up.railway.app");
 socket.onopen = () => {
   console.log("✅ WebSocket connected from FE");
 
