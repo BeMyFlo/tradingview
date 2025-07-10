@@ -1,6 +1,3 @@
-// const apiBaseUrl = "http://localhost:8090/api/user/api/user";
-const apiBaseUrl = "https://beviewchart-production.up.railway.app/api/user";
-
 // ✅ Đảm bảo gọi sau khi popup HTML đã được inject xong
 function initAuthPopupEvents() {
   const form = document.getElementById("auth-form");
@@ -49,7 +46,7 @@ async function handleAuthSubmit(e) {
   const endpoint = mode === "register" ? "/register" : "/login";
 
   try {
-    const res = await fetch(apiBaseUrl + endpoint, {
+    const res = await fetch(AppConfig.apiBaseUrl + endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

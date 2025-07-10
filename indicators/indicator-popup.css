@@ -5,21 +5,115 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Slightly darker overlay for better contrast */
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 999;
 }
+
 .modal {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
   max-width: 400px;
   width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif; /* Modern font stack */
 }
+
+.modal h3 {
+  margin: 0 0 20px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a; /* Darker text for better readability */
+}
+
+.modal label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.modal input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #1a1a1a; /* Blue border for checkboxes */
+  border-radius: 4px;
+  margin-right: 10px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.modal input[type="checkbox"]:checked {
+  background: #1a1a1a; /* Blue fill when checked */
+}
+
+.modal input[type="checkbox"]:checked::after {
+  content: "\2713"; /* Checkmark */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.modal input[type="checkbox"]:hover {
+  border-color: #357abd; /* Darker blue on hover */
+}
+
 .modal-buttons {
-  margin-top: 10px;
+  margin-top: 20px;
   display: flex;
   justify-content: space-between;
+  gap: 10px;
+}
+
+.modal-buttons button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.1s ease;
+}
+
+.modal-buttons button:first-child {
+  background: #1a1a1a; /* Primary blue for "Apply" */
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background: #f1f3f5; /* Light gray for "Close" */
+  color: #333;
+}
+
+.modal-buttons button:hover {
+  transform: translateY(-1px); /* Subtle lift effect */
+}
+
+.modal-buttons button:first-child:hover {
+  background: #357abd; /* Darker blue on hover */
+}
+
+.modal-buttons button:last-child:hover {
+  background: #e0e2e5; /* Darker gray on hover */
+}
+
+.modal-buttons button:active {
+  transform: translateY(0); /* Reset lift on click */
 }

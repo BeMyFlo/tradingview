@@ -44,7 +44,6 @@
             <option value="heikin_ashi">Heikin Ashi</option>
           </select>
           <button onclick="openIndicatorPopup()">Các chỉ báo kĩ thuật</button>
-          <button onclick="loadChart()">Tải lại</button>
         </div>
       </div>
       <div class="auth-buttons">
@@ -56,20 +55,12 @@
     <div class="container">
       <div class="chart-area">
         <div id="loading" class="loading-overlay">Loading...</div>
-        <!-- <div class="chart-toolbar">
-          <button id="add-trade-tool" title="Thêm thế giá">＋</button>
-          <button title="Trend Line"><i class="icon">／</i></button>
-          <button title="Horizontal Line"><i class="icon">─</i></button>
-          <button title="Brush"><i class="icon">🖊️</i></button>
-          <button title="Text"><i class="icon">🅰️</i></button>
-          <button title="Emoji"><i class="icon">😊</i></button>
-          <button title="Arrow"><i class="icon">➡️</i></button>
-          <button title="Rectangle"><i class="icon">⬛</i></button>
-          <button title="Lock"><i class="icon">🔒</i></button>
-          <button title="Eye"><i class="icon">👁️</i></button>
-          <button title="Delete"><i class="icon">🗑️</i></button>
-        </div> -->
-        <div id="chart" style="position: relative"></div>
+        <div id="chart" style="position: relative; height: 100%">
+          <div id="chart-inner" style="width: 100%; height: 100%"></div>
+        </div>
+        <div id="chart-rsi-area">
+          <div id="chart-rsi"></div>
+        </div>
         <button id="like-button" class="like-chart-btn">♡</button>
       </div>
       <div class="sidebar">
@@ -97,6 +88,8 @@
     </div>
     <div id="auth-popup-container"></div>
     <div id="indicator-popup-container"></div>
+    <script src="./config.js"></script>
     <script src="./script.js"></script>
+    <script src="./indicators/indicators/bollinger.js"></script>
   </body>
 </html>

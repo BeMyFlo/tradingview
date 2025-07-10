@@ -1,14 +1,12 @@
 let chart, series;
 let lastCandleTime = 0;
-// const url = "http://localhost:8090/api/user";
-const url = "https://beviewchart-production.up.railway.app/api/user";
+let chartCandlesGlobal = [];
+let rsiChart, rsiSeries, oversoldLine, overboughtLine;
+window.Indicators = window.Indicators || {};
 
 // =================== KẾT NỐI WEBSOCKET ===================
-// const socket = new WebSocket("ws://localhost:8090");
-const socket = new WebSocket("wss://beviewchart-production.up.railway.app");
+const socket = new WebSocket(AppConfig.socketUrl);
 socket.onopen = () => {
-  console.log("✅ WebSocket connected from FE");
-
   const userId = localStorage.getItem("userId");
   if (!userId) {
     console.warn("⚠️ Không có userId, không gửi auth WebSocket");
@@ -27,7 +25,6 @@ socket.onmessage = (event) => {
 
   if (msg.type === "candleUpdate") {
     const candle = msg.data;
-
     if (
       series &&
       candle?.symbol === currentSymbol &&
@@ -43,7 +40,14 @@ socket.onmessage = (event) => {
           close: +candle.close,
         });
 
-        lastCandleTime = time; // Cập nhật lại mốc thời gian mới nhất
+        lastCandleTime = time;
+
+        if (candle.rsi !== undefined && rsiSeries) {
+          console.log("Cập nhật RSI:", candle.rsi);
+          rsiSeries.update({ time, value: candle.rsi });
+          oversoldLine.update({ time, value: 25 });
+          overboughtLine.update({ time, value: 70 });
+        }
       }
     }
   }
@@ -108,7 +112,7 @@ async function loadChart() {
 
 // =================== LẤY DỮ LIỆU NẾN TỪ BACKEND ===================
 async function fetchCandles(symbol, interval) {
-  const res = await fetch(url + "/data", {
+  const res = await fetch(AppConfig.apiBaseUrl + "/data", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ symbol, interval }),
@@ -151,15 +155,31 @@ function updateChartInfoSidebar(candles, symbol) {
 
 // =================== KHỞI TẠO VÀ VẼ CHART ===================
 function initChart(chartType, candles) {
-  const chartContainer = document.getElementById("chart");
+  chartCandlesGlobal = candles;
+  const chartContainer = document.getElementById("chart-inner");
   chartContainer.innerHTML = "";
 
   chart = LightweightCharts.createChart(chartContainer, {
-    layout: { background: { color: "#fff" }, textColor: "#000" },
+    layout: {
+      background: { color: "#fff" },
+      textColor: "#696969",
+      fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+      fontSize: 12,
+    },
     timeScale: { timeVisible: true },
     rightPriceScale: { visible: true },
     crosshair: {
       mode: LightweightCharts.CrosshairMode.Normal,
+    },
+    grid: {
+      vertLines: {
+        color: "rgba(197, 203, 206, 0.3)",
+        style: 0,
+      },
+      horzLines: {
+        color: "rgba(197, 203, 206, 0.3)",
+        style: 0,
+      },
     },
   });
 
@@ -234,7 +254,7 @@ function updateRightSidebarPrices(data) {
 // =================== Load danh sách coin ra để select ===================
 async function loadSymbolList() {
   try {
-    const res = await fetch(url + "/symbols");
+    const res = await fetch(AppConfig.apiBaseUrl + "/symbols");
     const symbols = await res.json();
 
     const symbolSelect = document.getElementById("symbol");
@@ -282,6 +302,83 @@ function convertToHeikinAshi(candles) {
   return haCandles;
 }
 
+// ==================== Vẽ RSI Chart ===================
+async function drawRSIChart() {
+  if (!chart || !chartCandlesGlobal || chartCandlesGlobal.length === 0) return;
+
+  const candlesToSend = chartCandlesGlobal.map((c) => ({
+    time: c.time,
+    close: c.close,
+  }));
+
+  try {
+    const res = await fetch("http://localhost:8090/api/user/rsi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        candles: candlesToSend,
+        interval: currentInterval,
+      }),
+    });
+
+    const rsiData = await res.json();
+
+    const rsiContainer = document.getElementById("chart-rsi");
+    rsiContainer.innerHTML = "";
+
+    const rsiChart = LightweightCharts.createChart(rsiContainer, {
+      layout: { background: { color: "#fff" }, textColor: "#000" },
+      timeScale: { timeVisible: true, alignLabels: false },
+      rightPriceScale: { visible: true },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      height: 150,
+    });
+
+    rsiSeries = rsiChart.addLineSeries({
+      color: "#f09",
+      lineWidth: 1,
+    });
+
+    rsiSeries.setData(rsiData);
+
+    oversoldLine = rsiChart.addLineSeries({
+      color: "rgba(0, 200, 0, 0.3)",
+      lineWidth: 1,
+    });
+    oversoldLine.setData(rsiData.map((d) => ({ time: d.time, value: 25 })));
+
+    overboughtLine = rsiChart.addLineSeries({
+      color: "rgba(200, 0, 0, 0.3)",
+      lineWidth: 1,
+    });
+    overboughtLine.setData(rsiData.map((d) => ({ time: d.time, value: 70 })));
+
+    chart.timeScale().subscribeVisibleTimeRangeChange((range) => {
+      rsiChart.timeScale().setVisibleRange(range);
+    });
+  } catch (err) {
+    console.error("❌ Lỗi khi vẽ RSI:", err.message);
+  }
+}
+
+// function syncTimeScale(mainChart, subChart) {
+//   let blockSync = false;
+
+//   mainChart.timeScale().subscribeVisibleTimeRangeChange((range) => {
+//     if (blockSync) return;
+//     blockSync = true;
+//     subChart.timeScale().setVisibleRange(range);
+//     blockSync = false;
+//   });
+
+//   subChart.timeScale().subscribeVisibleTimeRangeChange((range) => {
+//     if (blockSync) return;
+//     blockSync = true;
+//     mainChart.timeScale().setVisibleRange(range);
+//     blockSync = false;
+//   });
+// }
+
 fetch("./user/auth-popup.html")
   .then((res) => res.text())
   .then((html) => {
@@ -310,65 +407,3 @@ fetch("./indicators/indicator-popup.html")
     script.src = "./indicators/indicator-popup.js";
     document.body.appendChild(script);
   });
-
-// =================== BẮT SỰ KIỆN CLICK VÀ ĐẶT THẾ GIÁ ===================
-// function subscribeChartClickEvents() {
-//   chart.subscribeClick((param) => {
-//     if (!isPlacingTradeBox) return;
-//     isPlacingTradeBox = false;
-
-//     const price = param.price;
-//     const tpPrice = price * 1.02;
-//     const slPrice = price * 0.99;
-
-//     const yEntry = series.priceToCoordinate(price);
-//     const yTP = series.priceToCoordinate(tpPrice);
-//     const ySL = series.priceToCoordinate(slPrice);
-//     const x = chart.timeScale().timeToCoordinate(param.time);
-
-//     if ([x, yEntry, yTP, ySL].includes(undefined)) return;
-
-//     const top = Math.min(yTP, ySL);
-//     const height = Math.abs(yTP - ySL);
-
-//     const box = document.createElement("div");
-//     box.className = "position-box";
-//     box.style.left = `${x - 50}px`;
-//     box.style.top = `${top}px`;
-//     box.style.height = `${height}px`;
-
-//     box.innerHTML = `
-//       <div class="tp-area" style="height:${Math.abs(yEntry - yTP)}px;"></div>
-//       <div class="entry-line"></div>
-//       <div class="sl-area" style="height:${Math.abs(ySL - yEntry)}px;"></div>
-//       <div class="handle"></div>
-//     `;
-
-//     document.getElementById("chart").appendChild(box);
-//     enableVerticalDrag(box.querySelector(".handle"), box);
-//   });
-// }
-
-// =================== CHO PHÉP DRAG HỘP VERTICALLY ===================
-// function enableVerticalDrag(handle, container) {
-//   let offsetY = 0;
-//   handle.onmousedown = (e) => {
-//     offsetY = e.clientY - container.getBoundingClientRect().top;
-
-//     document.onmousemove = (moveEvent) => {
-//       const chartRect = document
-//         .getElementById("chart")
-//         .getBoundingClientRect();
-//       let newTop = moveEvent.clientY - chartRect.top - offsetY;
-//       newTop = Math.max(
-//         0,
-//         Math.min(newTop, chartRect.height - container.offsetHeight)
-//       );
-//       container.style.top = `${newTop}px`;
-//     };
-
-//     document.onmouseup = () => {
-//       document.onmousemove = null;
-//     };
-//   };
-// }

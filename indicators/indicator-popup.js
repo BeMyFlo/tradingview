@@ -15,10 +15,16 @@ function applyIndicators() {
       indicators.push(checkbox.value);
     });
 
-  console.log("📊 Các chỉ báo được chọn:", indicators);
   closeIndicatorPopup();
 
   if (indicators.includes("bollinger")) {
-    drawBollingerBands(); // cần có hàm này trong script chính
+    Indicators.drawBollingerBands();
+  }
+
+  if (indicators.includes("rsi")) {
+    document.getElementById("chart-rsi-area").style.display = "block";
+    drawRSIChart();
+  } else {
+    document.getElementById("chart-rsi-area").style.display = "none";
   }
 }

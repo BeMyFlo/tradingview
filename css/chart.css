@@ -1,10 +1,13 @@
 .chart-area {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   position: relative;
   background: #ffffff;
   border-right: 1px solid #e0e0e0;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
   transition: background 0.3s, border-color 0.3s;
+  overflow-y: auto; /* cho phép cuộn nếu subchart dài */
 }
 
 body.dark-mode .chart-area {
@@ -14,8 +17,16 @@ body.dark-mode .chart-area {
 }
 
 #chart {
+  flex: 1;
+  height: 100%; /* Chiếm hết chiều cao khả dụng */
+  border: 10px solid #e2e2e2;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+#chart-inner {
   width: 100%;
-  height: 90%;
+  height: 100%; /* Rất quan trọng để biểu đồ chính full size */
 }
 
 .chart-toolbar {
@@ -144,6 +155,25 @@ body.dark-mode .chart-toolbar button:hover {
 
 .like-chart-btn.liked {
   color: red;
+}
+
+#chart-rsi-area {
+  display: none;
+  width: 100%;
+  min-height: 205px;
+  margin-top: 20px;
+  padding: 20px;
+  border: 10px solid #e2e2e2;
+  background: #ffffff;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#chart-rsi {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
