@@ -17,6 +17,11 @@ function applyIndicators() {
 
   closeIndicatorPopup();
 
+  // Bật/tắt realtime Bollinger Bands
+  if (window) {
+    window.isBollingerEnabled = indicators.includes("bollinger");
+  }
+
   if (indicators.includes("bollinger")) {
     Indicators.drawBollingerBands();
   }

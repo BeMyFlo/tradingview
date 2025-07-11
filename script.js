@@ -2,6 +2,13 @@ let chart, series;
 let lastCandleTime = 0;
 let chartCandlesGlobal = [];
 let rsiChart, rsiSeries, oversoldLine, overboughtLine;
+let bbUpperSeries, bbMiddleSeries, bbLowerSeries;
+let isBollingerEnabled = false; // Thêm biến flag
+let isDrawingTrendline = false;
+let trendlinePoints = [];
+let trendlineSeries = null;
+let previousPrices = {}; // Global biến lưu giá trước đó
+
 window.Indicators = window.Indicators || {};
 
 // =================== KẾT NỐI WEBSOCKET ===================
@@ -32,6 +39,20 @@ socket.onmessage = (event) => {
     ) {
       const time = candle.time;
       if (time >= lastCandleTime) {
+        //Push candle mới vào biến chart toàn cục
+        chartCandlesGlobal.push({
+          time,
+          open: +candle.open,
+          high: +candle.high,
+          low: +candle.low,
+          close: +candle.close,
+          volume: candle.volume, // nếu có
+        });
+        if (chartCandlesGlobal.length > 100) chartCandlesGlobal.shift();
+      
+        // Update info cho bảng thông tin chi tiết bên phải
+        updateChartInfoSidebar(chartCandlesGlobal, currentSymbol);
+
         series.update({
           time,
           open: +candle.open,
@@ -43,10 +64,25 @@ socket.onmessage = (event) => {
         lastCandleTime = time;
 
         if (candle.rsi !== undefined && rsiSeries) {
-          console.log("Cập nhật RSI:", candle.rsi);
           rsiSeries.update({ time, value: candle.rsi });
           oversoldLine.update({ time, value: 25 });
           overboughtLine.update({ time, value: 70 });
+        }
+
+        // --- Bollinger Bands realtime update ---
+        if (isBollingerEnabled && candle.bollinger) {
+          if (!bbUpperSeries) {
+            bbUpperSeries = chart.addLineSeries({ color: "rgba(0, 200, 255, 0.6)", lineWidth: 1 });
+          }
+          if (!bbMiddleSeries) {
+            bbMiddleSeries = chart.addLineSeries({ color: "rgba(255, 165, 0, 0.8)", lineWidth: 1 });
+          }
+          if (!bbLowerSeries) {
+            bbLowerSeries = chart.addLineSeries({ color: "rgba(0, 200, 255, 0.6)", lineWidth: 1 });
+          }
+          bbUpperSeries.update({ time, value: candle.bollinger.upper });
+          bbMiddleSeries.update({ time, value: candle.bollinger.middle });
+          bbLowerSeries.update({ time, value: candle.bollinger.lower });
         }
       }
     }
@@ -65,6 +101,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   initEventListeners();
   loadChart();
 });
+
+// =================== VẼ TRENDLINE ===================
+document.getElementById("add-trend-line").addEventListener("click", () => {
+  isDrawingTrendline = true;
+  trendlinePoints = [];
+});
+
+
 // =================== KHỞI TẠO CÁC SỰ KIỆN CHỌN MENU ===================
 function initEventListeners() {
   document.getElementById("symbol").addEventListener("change", loadChart);
@@ -101,6 +145,7 @@ async function loadChart() {
         type: "subscribeCandle",
         symbol,
         interval,
+        candles: candles.slice(-100) 
       })
     );
   } catch (err) {
@@ -205,11 +250,41 @@ function initChart(chartType, candles) {
     series.setData(seriesData);
     lastCandleTime = seriesData[seriesData.length - 1]?.time || 0;
   }
+
+  drawTrendline();
+}
+
+// =================== VẼ TRENDLINE ===================
+function drawTrendline() {
+  chart.subscribeClick((param) => {
+    if (!isDrawingTrendline) return;
+    if (!param.time || !param.seriesData) return;
+  
+    const priceObj = param.seriesData.get(series);
+    if (!priceObj || priceObj.close === undefined) return;
+  
+    trendlinePoints.push({ time: param.time, value: priceObj.close });
+  
+    if (trendlinePoints.length === 2) {
+      if (trendlineSeries) {
+        chart.removeSeries(trendlineSeries);
+      }
+      trendlineSeries = chart.addLineSeries({
+        color: 'red',
+        lineWidth: 2,
+        priceLineVisible: false,
+      });
+      trendlineSeries.setData(trendlinePoints);
+  
+      console.log("Đã vẽ trendline:", trendlinePoints);
+  
+      isDrawingTrendline = false;
+      trendlinePoints = [];
+    }
+  });
 }
 
 // =================== CẬP NHẬT GIÁ COIN BÊN PHẢI ===================
-let previousPrices = {}; // Global biến lưu giá trước đó
-
 function updateRightSidebarPrices(data) {
   const coinList = document.getElementById("coinList");
   coinList.innerHTML = `
@@ -312,7 +387,7 @@ async function drawRSIChart() {
   }));
 
   try {
-    const res = await fetch("http://localhost:8090/api/user/rsi", {
+    const res = await fetch(AppConfig.apiBaseUrl + "/rsi", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
